@@ -2,6 +2,7 @@ import { Octokit } from 'octokit';
 import { GoogleGenAI } from '@google/genai';
 import twilio from 'twilio';
 import dotenv from 'dotenv';
+import express from 'express'; // 💥 Added
 
 dotenv.config();
 
@@ -208,5 +209,12 @@ async function sendToWhatsApp(title: string, url: string, summary: string): Prom
     console.error('Failed to send WhatsApp message via Twilio:', error?.message || error);
   }
 }
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🤖 Server listening on port ${PORT}. Render Health Checks will now pass!`);
+});
 
 pollAngularRepo();
