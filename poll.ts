@@ -33,7 +33,7 @@ const twilioClient = (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN)
 
 const REPO_OWNER = 'angular';
 const REPO_NAME = 'angular';
-const POLL_INTERVAL = 15 * 1000; // 15 seconds (keeps Render awake!)
+const POLL_INTERVAL = 11 * 60 * 1000; // 11 minutes (keeps Render awake!)
 
 const processedApprovals = new Set<number>();
 
