@@ -33,7 +33,7 @@ const twilioClient = (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN)
 
 const REPO_OWNER = 'angular';
 const REPO_NAME = 'angular';
-const POLL_INTERVAL = 11 * 60 * 1000; // 11 minutes (keeps Render awake!)
+const POLL_INTERVAL = 15 * 1000; // 15 seconds (keeps Render awake!)
 
 const processedApprovals = new Set<number>();
 
@@ -191,22 +191,52 @@ async function sendToTeams(title: string, url: string, summary: string): Promise
 //(Twilio Sandbox)
 async function sendToWhatsApp(title: string, url: string, summary: string): Promise<void> {
   if (!twilioClient || !TWILIO_WHATSAPP_FROM || !YOUR_PERSONAL_PHONE) {
-    console.log('Twilio variables missing. Skipping WhatsApp dispatch.');
+    console.log('⚠️ Twilio variables missing. Skipping WhatsApp dispatch.');
     return;
   }
 
   try {
-    const formattedMessage = `📢 *Angular PR Approved!*\n\n*Title:* ${title}\n*Link:* ${url}\n\n${summary}`;
+    // 1. Format headers and substitute markdown selectors for WhatsApp compliance
+    let cleanSummary = summary
+      .replace(/## 🔹/g, '*🔹*')
+      .replace(/## ⚡/g, '*⚡*')
+      .replace(/## 🛠️/g, '*🛠️*');
 
+    const header = `📢 *Angular Core Feature Approved!*\n*PR:* ${title}\n*Link:* ${url}\n\n`;
+    const footer = `\n\n_...[Truncated] Check MS Teams for full architectural blueprint!_`;
+
+    // 2. Safe calculation for character limit safety (1600 max)
+    const availableSpace = 1600 - header.length - footer.length;
+    let finalBody = '';
+
+    if (cleanSummary.length > availableSpace) {
+      // Slice the summary down to fit comfortably inside the safe zone
+      let truncatedSummary = cleanSummary.substring(0, availableSpace);
+
+      // Clean up: Avoid breaking a word or sentence in half by finding the last space or period
+      const lastPeriodIndex = truncatedSummary.lastIndexOf('.');
+      if (lastPeriodIndex > availableSpace * 0.8) {
+        truncatedSummary = truncatedSummary.substring(0, lastPeriodIndex + 1);
+      } else {
+        const lastSpaceIndex = truncatedSummary.lastIndexOf(' ');
+        truncatedSummary = truncatedSummary.substring(0, lastSpaceIndex);
+      }
+
+      finalBody = `${header}${truncatedSummary}${footer}`;
+    } else {
+      finalBody = `${header}${cleanSummary}`;
+    }
+
+    // 3. Dispatch to Twilio Sandbox
     await twilioClient.messages.create({
       from: TWILIO_WHATSAPP_FROM,
       to: YOUR_PERSONAL_PHONE,
-      body: formattedMessage
+      body: finalBody
     });
 
-    console.log(`Summary sent to WhatsApp successfully!`);
+    console.log(`✅ Text successfully streamlined and sent to WhatsApp!`);
   } catch (error: any) {
-    console.error('Failed to send WhatsApp message via Twilio:', error?.message || error);
+    console.error('❌ Failed to send WhatsApp message via Twilio:', error?.message || error);
   }
 }
 
