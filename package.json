@@ -1,0 +1,27 @@
+{
+  "name": "angular_updates",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "poll.js",
+  "scripts": {
+    "dev": "tsx watch poll.ts",
+    "start": "tsx poll.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^2.5.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "octokit": "^5.0.5",
+    "twilio": "^6.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3"
+  }
+}
